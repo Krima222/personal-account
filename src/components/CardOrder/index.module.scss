@@ -1,0 +1,24 @@
+.wrapper {
+  box-sizing: border-box;
+
+  width: 100%;
+  max-width: 650px;
+
+  padding: 20px 24px 24px;
+
+  display: flex;
+  gap: 15px;
+}
+
+.item {
+  flex: 1;
+}
+
+.chip {
+  margin-top: 10px;
+}
+
+.wrapper:hover {
+  border-radius: 20px;
+  background: #f2f1f0;
+}
