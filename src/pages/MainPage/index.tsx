@@ -1,4 +1,4 @@
-import { Button, Input, Loader, Pagination } from '@mantine/core'
+import { Button, Input, Loader, Pagination, Select } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
 import { TrashIcon } from '@radix-ui/react-icons'
 
@@ -21,8 +21,9 @@ export function MainPage() {
   const [page, setPage] = useState<number>(1)
   const [opened, { open, close }] = useDisclosure(false)
   const [selectedItems, setSelectedItems] = useState('')
+  const [value, setValue] = useState<string | null>('')
 
-  const { data, refetch } = useAds(page, limit)
+  const { data, refetch } = useAds({ page, limit, sort: value })
   const { data: adData } = useAllAds()
   const { data: searchData } = useAd({
     id: selectedItems ?? '',
@@ -36,6 +37,25 @@ export function MainPage() {
       console.error('Failed to delete ad:', error)
     },
   })
+
+  const formattedData = [
+    {
+      value: '',
+      label: 'без фильтра',
+    },
+    {
+      value: 'price',
+      label: 'цене',
+    },
+    {
+      value: 'views',
+      label: 'просмотрам',
+    },
+    {
+      value: 'likes',
+      label: 'лайкам',
+    },
+  ]
 
   const ads = data || []
 
@@ -67,7 +87,6 @@ export function MainPage() {
         <div className={classes.header}>
           <Button onClick={open}>Добавить объявление</Button>
           <Input
-            placeholder="Идентификатор"
             value={limit}
             onChange={event =>
               setLimit(Number.parseInt(event.target.value, 10))
@@ -76,6 +95,13 @@ export function MainPage() {
           />
           <NewAd opened={opened} close={close} refetch={refetch} create />
           <Search data={adData?.ads} onChange={handleSelectChange} />
+          <Select
+            label="Отфильтровать по:"
+            placeholder="Фильтрация"
+            data={formattedData}
+            value={value}
+            onChange={setValue}
+          />
         </div>
         <div className={classes.main}>
           {searchData ? (
