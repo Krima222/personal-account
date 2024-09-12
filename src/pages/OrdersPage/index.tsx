@@ -1,4 +1,4 @@
-import { Button, Loader, Select } from '@mantine/core'
+import { Button, Loader, Pagination, Select } from '@mantine/core'
 
 import { ArrowDownIcon, ArrowUpIcon } from '@radix-ui/react-icons'
 
@@ -9,14 +9,19 @@ import { useOrders } from '../../hooks/useOrders'
 import classes from './index.module.scss'
 import { useMutation } from '../../hooks/useMutation'
 import { patchOrder } from '../../api/patchOrder'
+import { useAllOrders } from '../../hooks/useAllOrders'
 
 export function OrdersPage() {
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
+  const [sortOrder, setSortOrder] = useState(false)
+  const [page, setPage] = useState<number>(1)
+  const { data: orderData } = useAllOrders()
   const [statusFilter, setStatusFilter] = useState<number | undefined>(
     undefined,
   )
   const { data, refetch } = useOrders({
     status: statusFilter,
+    sort: sortOrder,
+    start: page * 1 - 1,
   })
 
   const { mutate } = useMutation(patchOrder, {
@@ -32,13 +37,9 @@ export function OrdersPage() {
     return <Loader />
   }
 
-  const sortedOrders = [...data].sort((a, b) => {
-    if (sortOrder === 'asc') {
-      return a.total - b.total
-    } else {
-      return b.total - a.total
-    }
-  })
+  const handleSortOrder = () => {
+    setSortOrder(!sortOrder)
+  }
 
   const handleStatusChange = (value: string | null) => {
     setStatusFilter(value === '' ? undefined : Number(value))
@@ -48,7 +49,13 @@ export function OrdersPage() {
     mutate({ id, status: 4 })
   }
 
-  const icon = sortOrder === 'asc' ? <ArrowUpIcon /> : <ArrowDownIcon />
+  const icon = sortOrder ? <ArrowUpIcon /> : <ArrowDownIcon />
+
+  if (!orderData) {
+    return <Loader />
+  }
+
+  const total = Math.ceil(orderData?.total / 1)
 
   return (
     <div className={classes.wrapper}>
@@ -69,23 +76,21 @@ export function OrdersPage() {
           />
         </div>
 
-        <Button
-          onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-          rightSection={icon}
-        >
+        <Button onClick={handleSortOrder} rightSection={icon}>
           Сортировать по сумме
         </Button>
       </div>
 
       <div>
         <ul>
-          {sortedOrders.map(order => (
+          {data.map(order => (
             <li key={order.id}>
               <CardOrder order={order} onChange={handleCompliteOrder} />
             </li>
           ))}
         </ul>
       </div>
+      <Pagination value={page} onChange={setPage} total={total} />
     </div>
   )
 }

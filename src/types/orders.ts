@@ -22,6 +22,4 @@ export interface Order {
   items: OrderItem[]
 }
 
-export type Orders = {
-  orders: Order[]
-}
+export type Orders = Order[]

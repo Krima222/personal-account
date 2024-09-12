@@ -3,9 +3,11 @@ import type { Orders } from '../types/orders'
 export async function fetchOrders({
   sort,
   status,
+  start,
 }: {
   sort?: boolean
   status?: number
+  start?: number
 }) {
   const options = {
     method: 'GET',
@@ -14,10 +16,10 @@ export async function fetchOrders({
     },
   }
 
-  let query = 'http://localhost:8000/orders?'
+  let query = `http://localhost:8000/orders?_start=${start}&_limit=1&`
 
   if (sort) {
-    query += `_sort=price&`
+    query += `_sort=total&`
   }
 
   if (status !== undefined) {
