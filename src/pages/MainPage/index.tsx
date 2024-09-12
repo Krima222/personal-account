@@ -23,15 +23,23 @@ export function MainPage() {
   const [selectedItems, setSelectedItems] = useState('')
   const [value, setValue] = useState<string | null>('')
 
-  const { data, refetch } = useAds({ page, limit, sort: value })
-  const { data: adData } = useAllAds()
+  const { data, refetch: refetchAds } = useAds({ page, limit, sort: value })
+  const { data: adData, refetch: refetchAllAds } = useAllAds()
   const { data: searchData } = useAd({
     id: selectedItems ?? '',
   })
 
+  const refetchAll = () => {
+    refetchAds()
+    refetchAllAds()
+  }
+
   const { mutate } = useMutation(deleteAd, {
     onSuccess: () => {
-      refetch()
+      refetchAll()
+      if (data && data.length === 1 && page > 1) {
+        setPage(page - 1)
+      }
     },
     onError: error => {
       console.error('Failed to delete ad:', error)
@@ -93,7 +101,7 @@ export function MainPage() {
             }
             type="number"
           />
-          <NewAd opened={opened} close={close} refetch={refetch} create />
+          <NewAd opened={opened} close={close} refetch={refetchAll} create />
           <Search data={adData?.ads} onChange={handleSelectChange} />
           <Select
             label="Отфильтровать по:"

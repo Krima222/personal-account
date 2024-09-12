@@ -2,7 +2,7 @@ import type { AdsResponse } from '../types/ads'
 
 export async function fetchAds({
   page,
-  limit,
+  limit = 10,
   sort,
 }: {
   page: number
